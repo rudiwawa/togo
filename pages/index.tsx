@@ -1,6 +1,7 @@
-import ContactList from "@/components/domain/contact/ContactList";
+import React, { useState, useCallback } from "react";
 import { gql, useQuery } from "@apollo/client";
-import { useState } from "react";
+import useInfiniteScroll from "react-infinite-scroll-hook";
+import ContactList from "@/components/domain/contact/ContactList";
 
 const GET_CONTACTS = gql`
   query GetContactList(
@@ -53,31 +54,59 @@ interface GetContactListResponse {
 }
 
 export default function Home() {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [limit, setLimit] = useState(10);
-  const [offset, setOffset] = useState(0);
+  const [limit, setLimit] = useState(2);
 
-  const { loading, error, data } = useQuery<GetContactListResponse>(
+  const { loading, error, data, fetchMore } = useQuery<GetContactListResponse>(
     GET_CONTACTS,
     {
       variables: {
         limit,
-        offset,
+        offset: 0,
         order_by: { created_at: "desc" },
       },
     }
   );
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error :(</p>;
-
   const totalContacts = data?.contact_aggregate.aggregate.count || 0;
-  const totalPages = Math.ceil(totalContacts / limit);
+  // const totalPages = Math.ceil(totalContacts / limit);
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    setOffset((page - 1) * limit);
-  };
+  const loadMore = useCallback(() => {
+    if (loading) {
+      return;
+    }
+
+    fetchMore({
+      variables: {
+        offset: data?.contact.length,
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        console.log(
+          "🚀 ~ file: index.tsx:90 ~ loadMore ~ fetchMoreResult:",
+          fetchMoreResult
+        );
+        if (!fetchMoreResult) return prev;
+        return {
+          ...fetchMoreResult,
+          contact: [...prev.contact, ...fetchMoreResult.contact],
+        };
+      },
+    });
+  }, [loading, data, fetchMore]);
+
+  const [sentryRef] = useInfiniteScroll({
+    loading,
+    hasNextPage: data?.contact ? data?.contact.length < totalContacts : false,
+    onLoadMore: loadMore,
+    disabled: error !== undefined,
+  });
+
+  if (loading && !data) {
+    return <p>Loading...</p>;
+  }
+
+  if (error) {
+    return <p>Error</p>;
+  }
 
   return (
     <div>
@@ -102,19 +131,7 @@ export default function Home() {
         }}
         selectedID={0}
       />
-      {totalPages > 1 && (
-        <div>
-          {[...Array(totalPages)].map((_, i) => (
-            <button
-              key={i}
-              onClick={() => handlePageChange(i + 1)}
-              disabled={currentPage === i + 1}
-            >
-              {i + 1}
-            </button>
-          ))}
-        </div>
-      )}
+      <div ref={sentryRef}>{loading && <p>Loading more...</p>}</div>
     </div>
   );
 }
