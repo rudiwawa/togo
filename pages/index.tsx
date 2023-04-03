@@ -101,11 +101,11 @@ export default function Home() {
   });
 
   if (loading && !data) {
-    return <p>Loading...</p>;
+    return <div>Loading...</div>;
   }
 
   if (error) {
-    return <p>Error</p>;
+    return <div>Error</div>;
   }
 
   return (
@@ -131,7 +131,7 @@ export default function Home() {
         }}
         selectedID={0}
       />
-      <div ref={sentryRef}>{loading && <p>Loading more...</p>}</div>
+      <div ref={sentryRef}>{loading && <div>Loading more...</div>}</div>
     </div>
   );
 }
