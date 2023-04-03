@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { gql, useQuery } from "@apollo/client";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 import ContactList from "@/components/domain/contact/ContactList";
@@ -57,6 +57,20 @@ export default function Home() {
   const [limit, setLimit] = useState(2);
 
   const [favorites, setFavorites] = useState<number[]>([]);
+
+  useEffect(() => {
+    if (favorites.length > 0) {
+      localStorage.setItem("favorites", JSON.stringify(favorites));
+    }
+  }, [favorites])
+
+  useEffect(() => {
+    const favorites = localStorage.getItem("favorites");
+    if (favorites) {
+      setFavorites(JSON.parse(favorites));
+    }
+  }, [])
+  
 
   const { loading, error, data, fetchMore } = useQuery<GetContactListResponse>(
     GET_CONTACTS,
