@@ -1,8 +1,4 @@
-import { useMemo } from "react";
-import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
-import { SchemaLink } from "@apollo/client/link/schema";
-import merge from "deepmerge";
-import { NormalizedCacheObject } from "@apollo/client";
+import { ApolloClient, InMemoryCache } from "@apollo/client";
 
 
 export const client = new ApolloClient({
