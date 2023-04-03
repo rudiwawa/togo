@@ -44,6 +44,14 @@ export const theme: ThemeType = {
     xl: "0 20px 25px 0 rgba(0, 0, 0, 0.1)",
     xxl: "0 25px 50px 0 rgba(0, 0, 0, 0.1)",
   },
+  breakpoints: {
+    xs: "0px",
+    sm: "576px",
+    md: "768px",
+    lg: "992px",
+    xl: "1200px",
+    xxl: "1400px",
+  },
 };
 
 export type ThemeType = {
@@ -85,6 +93,14 @@ export type ThemeType = {
     lineHeight: string;
   };
   shadows: {
+    xs: string;
+    sm: string;
+    md: string;
+    lg: string;
+    xl: string;
+    xxl: string;
+  };
+  breakpoints: {
     xs: string;
     sm: string;
     md: string;

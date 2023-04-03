@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from "react";
 import { gql, useQuery } from "@apollo/client";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 import ContactList from "@/components/domain/contact/ContactList";
+import { Layout } from "@/components/base/Layout";
 
 const GET_CONTACTS = gql`
   query GetContactList(
@@ -62,15 +63,14 @@ export default function Home() {
     if (favorites.length > 0) {
       localStorage.setItem("favorites", JSON.stringify(favorites));
     }
-  }, [favorites])
+  }, [favorites]);
 
   useEffect(() => {
     const favorites = localStorage.getItem("favorites");
     if (favorites) {
       setFavorites(JSON.parse(favorites));
     }
-  }, [])
-  
+  }, []);
 
   const { loading, error, data, fetchMore } = useQuery<GetContactListResponse>(
     GET_CONTACTS,
@@ -90,6 +90,16 @@ export default function Home() {
   const unFavoriteContacts = data?.contact.filter(
     (contact) => !favorites.includes(contact.id)
   );
+
+  const FavoriteToggle = (id: number) => {
+    setFavorites((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((item) => item !== id);
+      }
+
+      return [...prev, id];
+    });
+  };
 
   const totalContacts = data?.contact_aggregate.aggregate.count || 0;
   // const totalPages = Math.ceil(totalContacts / limit);
@@ -133,62 +143,51 @@ export default function Home() {
   }
 
   return (
-    <div>
-      <ContactList
-        contact={
-          favoriteContacts?.map((contact) => ({
-            id: contact.id,
-            name: `${contact.first_name} ${contact.last_name}`,
-            phones: contact.phones,
-            created_at: contact.created_at,
-          })) ?? []
-        }
-        isFavorite
-        onContactClickFavorite={function (id: number): void {
-          setFavorites((prev) => {
-            if (prev.includes(id)) {
-              return prev.filter((item) => item !== id);
+    <Layout
+      left={
+        <>
+          <ContactList
+            contact={
+              favoriteContacts?.map((contact) => ({
+                id: contact.id,
+                name: `${contact.first_name} ${contact.last_name}`,
+                phones: contact.phones,
+                created_at: contact.created_at,
+              })) ?? []
             }
-
-            return [...prev, id];
-          });
-        }}
-        onContactClick={function (contact: number): void {
-          throw new Error("Function not implemented.");
-        }}
-        onDelete={function (id: number): void {
-          throw new Error("Function not implemented.");
-        }}
-        selectedID={0}
-      />
-      <ContactList
-        isFavorite={false}
-        contact={
-          unFavoriteContacts?.map((contact) => ({
-            id: contact.id,
-            name: `${contact.first_name} ${contact.last_name}`,
-            phones: contact.phones,
-            created_at: contact.created_at,
-          })) ?? []
-        }
-        onContactClickFavorite={function (id: number): void {
-          setFavorites((prev) => {
-            if (prev.includes(id)) {
-              return prev.filter((item) => item !== id);
+            isFavorite
+            onContactClickFavorite={(id) => FavoriteToggle(id)}
+            onContactClick={function (contact: number): void {
+              throw new Error("Function not implemented.");
+            }}
+            onDelete={function (id: number): void {
+              throw new Error("Function not implemented.");
+            }}
+            selectedID={0}
+          />
+          <ContactList
+            isFavorite={false}
+            contact={
+              unFavoriteContacts?.map((contact) => ({
+                id: contact.id,
+                name: `${contact.first_name} ${contact.last_name}`,
+                phones: contact.phones,
+                created_at: contact.created_at,
+              })) ?? []
             }
-
-            return [...prev, id];
-          });
-        }}
-        onContactClick={function (contact: number): void {
-          throw new Error("Function not implemented.");
-        }}
-        onDelete={function (id: number): void {
-          throw new Error("Function not implemented.");
-        }}
-        selectedID={0}
-      />
-      <div ref={sentryRef}>{loading && <div>Loading more...</div>}</div>
-    </div>
+            onContactClickFavorite={(id) => FavoriteToggle(id)}
+            onContactClick={function (contact: number): void {
+              throw new Error("Function not implemented.");
+            }}
+            onDelete={function (id: number): void {
+              throw new Error("Function not implemented.");
+            }}
+            selectedID={0}
+          />
+          <div ref={sentryRef}>{loading && <div>Loading more...</div>}</div>
+        </>
+      }
+      right={"Kanan"}
+    />
   );
 }
