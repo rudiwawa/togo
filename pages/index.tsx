@@ -56,6 +56,8 @@ interface GetContactListResponse {
 export default function Home() {
   const [limit, setLimit] = useState(2);
 
+  const [favorites, setFavorites] = useState<number[]>([]);
+
   const { loading, error, data, fetchMore } = useQuery<GetContactListResponse>(
     GET_CONTACTS,
     {
@@ -65,6 +67,14 @@ export default function Home() {
         order_by: { created_at: "desc" },
       },
     }
+  );
+
+  const favoriteContacts = data?.contact.filter((contact) =>
+    favorites.includes(contact.id)
+  );
+
+  const unFavoriteContacts = data?.contact.filter(
+    (contact) => !favorites.includes(contact.id)
   );
 
   const totalContacts = data?.contact_aggregate.aggregate.count || 0;
@@ -112,16 +122,49 @@ export default function Home() {
     <div>
       <ContactList
         contact={
-          data?.contact.map((contact) => ({
+          favoriteContacts?.map((contact) => ({
             id: contact.id,
             name: `${contact.first_name} ${contact.last_name}`,
-            favorite: false,
+            phones: contact.phones,
+            created_at: contact.created_at,
+          })) ?? []
+        }
+        isFavorite
+        onContactClickFavorite={function (id: number): void {
+          setFavorites((prev) => {
+            if (prev.includes(id)) {
+              return prev.filter((item) => item !== id);
+            }
+
+            return [...prev, id];
+          });
+        }}
+        onContactClick={function (contact: number): void {
+          throw new Error("Function not implemented.");
+        }}
+        onDelete={function (id: number): void {
+          throw new Error("Function not implemented.");
+        }}
+        selectedID={0}
+      />
+      <ContactList
+        isFavorite={false}
+        contact={
+          unFavoriteContacts?.map((contact) => ({
+            id: contact.id,
+            name: `${contact.first_name} ${contact.last_name}`,
             phones: contact.phones,
             created_at: contact.created_at,
           })) ?? []
         }
         onContactClickFavorite={function (id: number): void {
-          throw new Error("Function not implemented.");
+          setFavorites((prev) => {
+            if (prev.includes(id)) {
+              return prev.filter((item) => item !== id);
+            }
+
+            return [...prev, id];
+          });
         }}
         onContactClick={function (contact: number): void {
           throw new Error("Function not implemented.");

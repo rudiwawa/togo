@@ -44,6 +44,7 @@ const DeleteButton = styled.button`
 const ContactList = ({
   contact,
   selectedID,
+  isFavorite,
   onContactClickFavorite,
   onContactClick,
   onDelete,
@@ -51,13 +52,13 @@ const ContactList = ({
   contact: {
     id: number;
     name: string;
-    favorite: boolean;
     phones: {
       number: string;
     }[];
     created_at: string;
   }[];
   onContactClickFavorite: (id: number) => void;
+  isFavorite: boolean;
   onContactClick: (contact: number) => void;
   onDelete: (id: number) => void;
   selectedID: number;
@@ -113,7 +114,7 @@ const ContactList = ({
               `}
               onClick={() => onContactClickFavorite(m.id)}
             >
-              {m.favorite ? (
+              {isFavorite ? (
                 <MdFavorite
                   css={css`
                     position: absolute;
