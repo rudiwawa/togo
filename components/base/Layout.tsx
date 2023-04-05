@@ -8,21 +8,22 @@ import { IoIosArrowBack } from "react-icons/io";
 export function Layout({
   left,
   right,
+  rightShow,
+  onClose,
 }: {
   left: React.ReactNode;
   right: React.ReactNode;
+  rightShow: boolean;
+  onClose: () => void;
 }) {
+  console.log("🚀 ~ file: Layout.tsx:18 ~ rightShow:", rightShow);
   const theme = useTheme() as ThemeType;
-  const [isShow, setIsShow] = useState(true);
-
-  const handleToggle = () => {
-    setIsShow(!isShow);
-  };
 
   return (
     <div
       css={css`
         display: flex;
+        position: relative;
 
         @media (max-width: ${theme.breakpoints.sm}) {
           flex-direction: column;
@@ -32,12 +33,18 @@ export function Layout({
       <div
         css={css`
           display: flex;
+          z-index: 20;
+          position: sticky;
+          top: 0;
+          overflow-y: auto;
+          height: 100%;
           flex-direction: column;
           background-color: ${theme.colors["gray-100"]};
           height: 100vh;
 
           @media (max-width: ${theme.breakpoints.sm}) {
             width: 100%;
+            overflow-y: auto;
           }
 
           @media (min-width: ${theme.breakpoints.sm}) {
@@ -50,46 +57,29 @@ export function Layout({
         {left}
       </div>
 
-      {/* <motion.div
-        initial={{ x: "100%" }}
-        animate={{ x: isShow ? 0 : "100%" }}
-        transition={{ duration: 0.2 }}
-        css={css`
-          position: fixed;
-          top: 0;
-          right: 0;
-          bottom: 0;
-          left: 0;
-          overflow-x: hidden;
-          background-color: ${theme.colors["gray-100"]};
-
-          @media (min-width: ${theme.breakpoints.sm}) {
-            position: static;
-            overflow-x: visible;
-            margin-left: 0rem;
-            background-color: transparent;
-          }
-        `}
-      >
+      <RightComponent isShow={rightShow} onClose={onClose}>
         {right}
-      </motion.div> */}
-      <RightComponent isShow={isShow}>{right}</RightComponent>
+      </RightComponent>
       {/* <button onClick={handleToggle} css>Toggle</button> */}
     </div>
   );
 }
 
-const TopBar = () => {
+const TopBar = ({ onClose }: { onClose: () => void }) => {
   const theme = useTheme() as ThemeType;
 
   return (
     <div
       css={css`
         display: flex;
+        position: sticky;
+        top: 0;
+        z-index: 10;
         align-items: center;
         justify-content: space-between;
         padding: 0rem 0.5rem 0rem 0.5rem;
         background-color: ${theme.colors["gray-100"]};
+        border-bottom: 1px solid ${theme.colors["gray-300"]};
       `}
     >
       <div
@@ -99,6 +89,7 @@ const TopBar = () => {
         `}
       >
         <button
+          onClick={onClose}
           css={css`
             display: inline-flex;
             align-items: center;
@@ -125,6 +116,7 @@ const TopBar = () => {
         <h3
           css={css`
             margin-left: 0.5rem;
+            color: ${theme.colors["gray-700"]};
           `}
         >
           Contact
@@ -166,9 +158,11 @@ const TopBar = () => {
 
 const RightComponent = ({
   isShow,
+  onClose,
   children,
 }: {
   isShow: boolean;
+  onClose: () => void;
   children: React.ReactNode;
 }) => {
   const theme = useTheme() as ThemeType;
@@ -179,6 +173,7 @@ const RightComponent = ({
         position: fixed;
         box-shadow: ${theme.shadows["xl"]};
         top: 0;
+        z-index: 30;
         right: ${isShow ? 0 : "-100%"};
         bottom: 0;
         left: ${isShow ? "0" : "100%"};
@@ -196,7 +191,7 @@ const RightComponent = ({
         }
       `}
     >
-      <TopBar />
+      <TopBar onClose={onClose} />
       <div
         css={css({
           padding: "1rem",

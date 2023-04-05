@@ -99,7 +99,7 @@ const ContactList = ({
           <div css={{ display: "flex", alignItems: "center", width: "100%" }}>
             <button
               css={css`
-                display: block;
+                display: flex;
                 margin: 0.5rem 0.75rem;
                 position: relative;
                 align-items: center;
@@ -117,15 +117,20 @@ const ContactList = ({
               {isFavorite ? (
                 <MdFavorite
                   css={css`
-                    position: absolute;
-                    right: -2px;
-                    bottom: -2px;
                     color: ${theme.colors.yellow1};
-                    width: 1rem;
-                    height: 1rem;
+                    width: 1.5rem;
+                    height: 1.5rem;
                   `}
                 />
-              ) : null}
+              ) : (
+                <MdFavoriteBorder
+                  css={css`
+                    color: ${theme.colors["gray-700"]};
+                    width: 1.5rem;
+                    height: 1.5rem;
+                  `}
+                />
+              )}
             </button>
             <div
               css={{
@@ -155,7 +160,7 @@ const ContactList = ({
                   css={{
                     fontSize: "9pt",
                     fontFamily: theme.fonts.body,
-                    fontWeight: "bold",
+                    fontWeight: "normal",
                     color: theme.colors.primary,
                     opacity: 0.9,
                   }}

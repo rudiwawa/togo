@@ -58,6 +58,8 @@ export default function Home() {
   const [limit, setLimit] = useState(2);
 
   const [favorites, setFavorites] = useState<number[]>([]);
+  const [detailShow, setDetailShow] = useState(false);
+  const [selectedContact, setSelectedContact] = useState(0);
 
   useEffect(() => {
     if (favorites.length > 0) {
@@ -158,7 +160,8 @@ export default function Home() {
             isFavorite
             onContactClickFavorite={(id) => FavoriteToggle(id)}
             onContactClick={function (contact: number): void {
-              throw new Error("Function not implemented.");
+              setSelectedContact(contact);
+              setDetailShow(true);
             }}
             onDelete={function (id: number): void {
               throw new Error("Function not implemented.");
@@ -188,6 +191,8 @@ export default function Home() {
         </>
       }
       right={"Kanan"}
+      onClose={() => setDetailShow(false)}
+      rightShow={detailShow}
     />
   );
 }
