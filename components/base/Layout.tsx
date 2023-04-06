@@ -10,13 +10,16 @@ export function Layout({
   right,
   rightShow,
   onClose,
+  onChangeSearch,
+  search,
 }: {
   left: React.ReactNode;
   right: React.ReactNode;
   rightShow: boolean;
   onClose: () => void;
+  onChangeSearch: (value: string) => void;
+  search: string;
 }) {
-  console.log("🚀 ~ file: Layout.tsx:18 ~ rightShow:", rightShow);
   const theme = useTheme() as ThemeType;
 
   return (
@@ -32,19 +35,16 @@ export function Layout({
     >
       <div
         css={css`
-          display: flex;
           z-index: 20;
           position: sticky;
           top: 0;
-          overflow-y: auto;
           height: 100%;
           flex-direction: column;
-          background-color: ${theme.colors["gray-100"]};
+          background-color: ${theme.colors["gray-300"]};
           height: 100vh;
 
           @media (max-width: ${theme.breakpoints.sm}) {
             width: 100%;
-            overflow-y: auto;
           }
 
           @media (min-width: ${theme.breakpoints.sm}) {
@@ -54,13 +54,52 @@ export function Layout({
           }
         `}
       >
-        {left}
+        <div
+          css={css`
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: ${theme.colors["gray-300"]};
+            padding: 0.5rem 0.75rem;
+            height: 3rem;
+            border-bottom: 1px solid ${theme.colors["gray-200"]};
+          `}
+        >
+          <input
+            type="text"
+            name="search"
+            placeholder="Search"
+            value={search}
+            css={css`
+              position: sticky;
+              top: 0;
+              z-index: 10;
+              width: 100%;
+              height: 1.5rem;
+              padding: 0.5rem;
+              border-radius: 0.25rem;
+              border: none;
+              background-color: white;
+              font-size: 12pt;
+              color: ${theme.colors["gray-700"]};
+            `}
+            onChange={(e) => {
+              onChangeSearch(e.target.value);
+            }}
+          />
+        </div>
+        <div
+          css={css`
+            overflow-y: auto;
+            height: calc(100vh - 4rem);
+          `}
+        >
+          {left}
+        </div>
       </div>
-
       <RightComponent isShow={rightShow} onClose={onClose}>
         {right}
       </RightComponent>
-      {/* <button onClick={handleToggle} css>Toggle</button> */}
     </div>
   );
 }
@@ -78,14 +117,15 @@ const TopBar = ({ onClose }: { onClose: () => void }) => {
         align-items: center;
         justify-content: space-between;
         padding: 0rem 0.5rem 0rem 0.5rem;
-        background-color: ${theme.colors["gray-100"]};
-        border-bottom: 1px solid ${theme.colors["gray-300"]};
+        background-color: ${theme.colors["gray-300"]};
+        border-bottom: 1px solid ${theme.colors["gray-100"]};
       `}
     >
       <div
         css={css`
           display: flex;
           align-items: center;
+          height: 4rem;
         `}
       >
         <button
@@ -195,7 +235,7 @@ const RightComponent = ({
       <div
         css={css({
           padding: "1rem",
-          backgroundColor: "white",
+          backgroundColor: theme.colors["gray-100"],
           minHeight: "100vh",
         })}
       >

@@ -55,79 +55,13 @@ interface GetContactListResponse {
 }
 
 export default function Home() {
-  const [limit, setLimit] = useState(2);
-
-  const [favorites, setFavorites] = useState<number[]>([]);
   const [detailShow, setDetailShow] = useState(false);
   const [selectedContact, setSelectedContact] = useState(0);
 
-  useEffect(() => {
-    if (favorites.length > 0) {
-      localStorage.setItem("favorites", JSON.stringify(favorites));
-    }
-  }, [favorites]);
-
-  useEffect(() => {
-    const favorites = localStorage.getItem("favorites");
-    if (favorites) {
-      setFavorites(JSON.parse(favorites));
-    }
-  }, []);
-
-  const { loading, error, data, fetchMore } = useQuery<GetContactListResponse>(
-    GET_CONTACTS,
-    {
-      variables: {
-        limit,
-        offset: 0,
-        order_by: { created_at: "desc" },
-      },
-    }
-  );
-
-  const favoriteContacts = data?.contact.filter((contact) =>
-    favorites.includes(contact.id)
-  );
-
-  const unFavoriteContacts = data?.contact.filter(
-    (contact) => !favorites.includes(contact.id)
-  );
-
-  const FavoriteToggle = (id: number) => {
-    setFavorites((prev) => {
-      if (prev.includes(id)) {
-        return prev.filter((item) => item !== id);
-      }
-
-      return [...prev, id];
-    });
-  };
-
-  const totalContacts = data?.contact_aggregate.aggregate.count || 0;
-  // const totalPages = Math.ceil(totalContacts / limit);
-
-  const loadMore = useCallback(() => {
-    if (loading) {
-      return;
-    }
-
-    fetchMore({
-      variables: {
-        offset: data?.contact.length,
-      },
-      updateQuery: (prev, { fetchMoreResult }) => {
-        console.log(
-          "🚀 ~ file: index.tsx:90 ~ loadMore ~ fetchMoreResult:",
-          fetchMoreResult
-        );
-        if (!fetchMoreResult) return prev;
-        return {
-          ...fetchMoreResult,
-          contact: [...prev.contact, ...fetchMoreResult.contact],
-        };
-      },
-    });
-  }, [loading, data, fetchMore]);
+  const { loading, data, loadMore, error, totalContacts, setSearch, search } =
+    useListContact();
+  const { favoriteContacts, unFavoriteContacts, FavoriteToggle } =
+    useFavoriteHook(data);
 
   const [sentryRef] = useInfiniteScroll({
     loading,
@@ -135,10 +69,6 @@ export default function Home() {
     onLoadMore: loadMore,
     disabled: error !== undefined,
   });
-
-  if (loading && !data) {
-    return <div>Loading...</div>;
-  }
 
   if (error) {
     return <div>Error</div>;
@@ -180,7 +110,8 @@ export default function Home() {
             }
             onContactClickFavorite={(id) => FavoriteToggle(id)}
             onContactClick={function (contact: number): void {
-              throw new Error("Function not implemented.");
+              setSelectedContact(contact);
+              setDetailShow(true);
             }}
             onDelete={function (id: number): void {
               throw new Error("Function not implemented.");
@@ -193,6 +124,119 @@ export default function Home() {
       right={"Kanan"}
       onClose={() => setDetailShow(false)}
       rightShow={detailShow}
+      onChangeSearch={function (value: string): void {
+        setSearch(value);
+      }}
+      search={search}
     />
   );
 }
+
+const useListContact = () => {
+  const [search, setSearch] = useState("");
+
+  const { loading, error, data, fetchMore } = useQuery<GetContactListResponse>(
+    GET_CONTACTS,
+    {
+      variables: {
+        limit: 2,
+        offset: 0,
+        order_by: { created_at: "desc" },
+        where: {
+          _or: [
+            {
+              first_name: {
+                _ilike: `%${search}%`,
+              },
+
+              // last_name: {
+              //   _ilike: `%${search}%`,
+              // },
+
+              // phones: {
+              //   number: {
+              //     _ilike: `%${search}%`,
+              //   },
+              // },
+            },
+          ],
+        },
+      },
+    }
+  );
+
+  const totalContacts = data?.contact_aggregate.aggregate.count || 0;
+
+  const loadMore = useCallback(() => {
+    if (loading) {
+      return;
+    }
+
+    fetchMore({
+      variables: {
+        offset: data?.contact.length,
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        console.log(
+          "🚀 ~ file: index.tsx:90 ~ loadMore ~ fetchMoreResult:",
+          fetchMoreResult
+        );
+        if (!fetchMoreResult) return prev;
+        return {
+          ...fetchMoreResult,
+          contact: [...(prev?.contact || []), ...fetchMoreResult.contact],
+        };
+      },
+    });
+  }, [loading, data, fetchMore]);
+
+  return {
+    loading,
+    error,
+    data,
+    loadMore,
+    totalContacts,
+    search,
+    setSearch,
+  };
+};
+
+const useFavoriteHook = (data: GetContactListResponse | undefined) => {
+  const [favorites, setFavorites] = useState<number[]>([]);
+  useEffect(() => {
+    if (favorites.length > 0) {
+      localStorage.setItem("favorites", JSON.stringify(favorites));
+    }
+  }, [favorites]);
+
+  useEffect(() => {
+    const favorites = localStorage.getItem("favorites");
+    if (favorites) {
+      setFavorites(JSON.parse(favorites));
+    }
+  }, []);
+
+  const favoriteContacts = data?.contact.filter((contact) =>
+    favorites.includes(contact.id)
+  );
+
+  const unFavoriteContacts = data?.contact.filter(
+    (contact) => !favorites.includes(contact.id)
+  );
+
+  const FavoriteToggle = (id: number) => {
+    setFavorites((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((item) => item !== id);
+      }
+
+      return [...prev, id];
+    });
+  };
+
+  return {
+    favoriteContacts,
+    unFavoriteContacts,
+    FavoriteToggle,
+  };
+};
