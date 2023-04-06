@@ -4,7 +4,10 @@ export function parseDate(date: string) {
   return new Date(date);
 }
 
-export function formatDateTime(date: Date | string) {
+export function formatDateTime(date?: Date | string) {
+  if (!date) {
+    return "";
+  }
   if (typeof date === "string") {
     date = parseDate(date);
   }
@@ -20,11 +23,15 @@ export function formatDistance(date: Date | string) {
   });
 }
 
-export function formatWhatsAppChatDate(date?: Date): string {
+export function formatWhatsAppChatDate(date?: Date | string): string {
   console.log("🚀 ~ file: date.ts:24 ~ formatWhatsAppChatDate ~ date:", date);
   if (!date) {
     return "";
   }
+  if (typeof date === "string") {
+    date = parseDate(date);
+  }
+
   const now = new Date();
   const diffInDays = Math.floor(
     (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
