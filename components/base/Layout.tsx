@@ -117,7 +117,7 @@ const TopBar = ({ onClose }: { onClose: () => void }) => {
         align-items: center;
         justify-content: space-between;
         padding: 0rem 0.5rem 0rem 0.5rem;
-        background-color: ${theme.colors["gray-300"]};
+        background-color: ${theme.colors["gray-200"]};
         border-bottom: 1px solid ${theme.colors["gray-100"]};
       `}
     >
@@ -218,7 +218,6 @@ const RightComponent = ({
         bottom: 0;
         left: ${isShow ? "0" : "100%"};
         overflow-x: hidden;
-        background-color: ${theme.colors["gray-100"]};
         transition: right 0.2s, left 0.2s;
 
         @media (min-width: ${theme.breakpoints.sm}) {
@@ -227,7 +226,6 @@ const RightComponent = ({
           overflow-x: visible;
           width: 100%;
           margin-left: 0rem;
-          background-color: transparent;
         }
       `}
     >
@@ -235,7 +233,7 @@ const RightComponent = ({
       <div
         css={css({
           padding: "1rem",
-          backgroundColor: theme.colors["gray-100"],
+          backgroundColor: theme.colors["gray-200"],
           minHeight: "100vh",
         })}
       >

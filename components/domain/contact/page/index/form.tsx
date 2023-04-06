@@ -8,7 +8,7 @@ export interface Contact {
   id?: number;
   first_name?: string;
   phones?: Phone[];
-  created_at?: string;
+  created_at?: Date;
 }
 
 export interface Phone {
