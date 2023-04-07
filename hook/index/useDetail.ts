@@ -34,13 +34,13 @@ export interface Phone {
   number: string;
 }
 
-export const useDetailContact = (id: number) => {
-  const { loading, error, data, fetchMore } =
-    useQuery<ContactDetail>(GET_CONTACT_DETAIL, {
-      variables: {
-        id: id,
-      },
-    });
+export const useDetailContact = (id?: number) => {
+  const { loading, error, data } = useQuery<ContactDetail>(GET_CONTACT_DETAIL, {
+    skip: typeof id === 'undefined',
+    variables: {
+      id: id,
+    },
+  });
 
   return {
     loading,

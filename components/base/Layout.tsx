@@ -223,6 +223,7 @@ const RightComponent = ({
         @media (min-width: ${theme.breakpoints.sm}) {
           box-shadow: none;
           position: static;
+          z-index: 0;
           overflow-x: visible;
           width: 100%;
           margin-left: 0rem;

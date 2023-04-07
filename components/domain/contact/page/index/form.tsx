@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { css, useTheme } from "@emotion/react";
 import { ThemeType } from "@/styles/theme";
-import { formatDateTime, formatWhatsAppChatDate } from "@/helper/date";
-import { MdAdd, MdDelete } from "react-icons/md";
+import { formatDateTime } from "@/helper/date";
+import { MdAdd, MdSave } from "react-icons/md";
+import { useDebounce } from "@/helper/debounce";
 
 export interface Contact {
   last_name: string;
@@ -12,9 +13,9 @@ export interface Contact {
   phones: Phone[];
 }
 export interface ContactParams {
-  last_name?: string;
+  last_name: string;
   id?: number;
-  first_name?: string;
+  first_name: string;
   created_at?: Date;
   phones?: Phone[];
 }
@@ -46,6 +47,8 @@ const buttonStyles = (props: { theme: ThemeType }) => css`
 const buttonActionStyles = ({ theme }: { theme: ThemeType }) => css`
   padding: 8px;
   height: 100%;
+  cursor: pointer;
+
   color: ${theme.colors["gray-800"]};
   background-color: ${theme.colors["gray-300"]};
   border-radius: 0.375rem;
@@ -78,8 +81,8 @@ export const ContactForm = ({
   onSubmit,
   isLoading = false,
 }: Props) => {
-  const [firstName, setFirstName] = useState<string>();
-  const [lastName, setLastName] = useState<string>();
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
   const [phone, setPhone] = useState("");
 
   useEffect(() => {
@@ -112,8 +115,6 @@ export const ContactForm = ({
   ) => {
     onPhoneNumberEdit(pkColumns, phone);
   };
-
-  const handleRemovePhone = (index: number) => {};
 
   return (
     <form css={formStyles} onSubmit={handleSubmit}>
@@ -169,35 +170,17 @@ export const ContactForm = ({
           `}
         >
           {contact?.phones?.map((phone, index) => (
-            <div
-              key={index}
-              css={css`
-                display: flex;
-                gap: 10px;
-                align-items: center;
-                margin-bottom: 1rem;
-              `}
-            >
-              <input
-                type="text"
-                value={phone.number}
-                onChange={(e) => {
-                  handlePhoneNumberEdit(
-                    { number: phone.number, contact_id: contact.id },
-                    { number: e.target.value }
-                  );
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => handleRemovePhone(index)}
-                css={css`
-                  ${buttonActionStyles({ theme })}
-                `}
-              >
-                <MdDelete />
-              </button>
-            </div>
+            <EditPhoneNumber
+              onPhoneNumberEdit={function (
+                pkColumns: { number: string; contact_id: number },
+                phone: Phone
+              ): void {
+                handlePhoneNumberEdit(pkColumns, phone);
+              }}
+              initialPhone={phone}
+              index={0}
+              id={contact.id}
+            />
           ))}
         </div>
       </div>
@@ -228,5 +211,72 @@ export const ContactForm = ({
         </b>
       </p>
     </form>
+  );
+};
+
+const EditPhoneNumber = ({
+  id,
+  onPhoneNumberEdit,
+  initialPhone,
+  index,
+}: {
+  onPhoneNumberEdit: (
+    pkColumns: { number: string; contact_id: number },
+    phone: Phone
+  ) => void;
+  initialPhone: Phone;
+  id: number;
+  index: number;
+}) => {
+  const theme = useTheme() as ThemeType;
+  const [phone, setPhone] = useState<string>(initialPhone.number);
+
+  const handlePhoneNumberEdit = () => {
+    onPhoneNumberEdit(
+      {
+        number: initialPhone.number,
+        contact_id: id,
+      },
+      {
+        number: phone,
+      }
+    );
+  };
+
+  useEffect(() => {
+    setPhone(initialPhone.number);
+  }, [initialPhone.number]);
+
+  const canSave = useDebounce(initialPhone.number !== phone, 100);
+
+  return (
+    <div
+      css={css`
+        display: flex;
+        gap: 10px;
+        margin-bottom: 1rem;
+      `}
+    >
+      <input
+        type="text"
+        value={phone}
+        onChange={(e) => {
+          setPhone(e.target.value);
+        }}
+      />
+      {canSave && (
+        <button
+          type="button"
+          onClick={() => handlePhoneNumberEdit()}
+          css={css`
+            ${buttonActionStyles({ theme })}
+            color: white;
+            background-color: ${theme.colors.primary};
+          `}
+        >
+          <MdSave />
+        </button>
+      )}
+    </div>
   );
 };

@@ -175,7 +175,7 @@ const ContactList = ({
                   text-overflow: ellipsis;
                 `}
               >
-                {m.phones[0].number}
+                {m.phones[0]?.number}
               </p>
             </div>
           </div>
