@@ -109,6 +109,7 @@ export const ContactForm = ({
 
     if (!contact?.id) {
       setPhones([]);
+      setPhone("");
       setFirstName("");
       setLastName("");
     }
