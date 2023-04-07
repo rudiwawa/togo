@@ -119,7 +119,7 @@ export default function Home() {
                     id: contact.id,
                   });
                   if (result) {
-                    // setDetailShow(false);
+                    setDetailShow(false);
                   }
                 } else {
                   const result = await addContactWithPhones(client, {
@@ -130,6 +130,7 @@ export default function Home() {
                   if (result) {
                     // setDetailShow(false);
                     refetchList();
+                    setDetailShow(false);
                   }
                 }
               }}
@@ -177,6 +178,7 @@ export default function Home() {
           }}
           onClick={() => {
             setSelectedContact(0);
+            setDetailShow(true);
           }}
         >
           <MdAdd />
