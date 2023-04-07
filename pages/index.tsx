@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { gql, useQuery } from "@apollo/client";
 import "normalize.css";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 import ContactList from "@/components/domain/contact/ContactList";
@@ -10,8 +9,12 @@ import { useDetailContact } from "@/hook/index/useDetail";
 import {
   Contact,
   ContactForm,
+  ContactParams,
+  Phone,
 } from "@/components/domain/contact/page/index/form";
-
+import { editContactById } from "@/hook/index/editContact";
+import { client } from "@/apollo/useClient2";
+import { editPhoneNumber } from "@/hook/index/editPhoneNumber";
 
 export default function Home() {
   const [detailShow, setDetailShow] = useState(false);
@@ -23,6 +26,7 @@ export default function Home() {
     loadMore,
     error: listError,
     totalContacts,
+    refetch: refetchList,
     setSearch,
     search,
   } = useListContact();
@@ -98,8 +102,24 @@ export default function Home() {
         <>
           <ContactForm
             contact={detailData?.contact_by_pk}
-            onSubmit={function (contact: Contact): void {
-              throw new Error("Function not implemented.");
+            onSubmit={async function (contact: ContactParams): Promise<void> {
+              if (contact.id) {
+                const result = await editContactById(client, contact.id, {
+                  first_name: contact.first_name,
+                  last_name: contact.last_name,
+                  id: contact.id,
+                });
+                if (result) {
+                  // setDetailShow(false);
+                }
+              }
+            }}
+            onPhoneAdd={function (contactId: number, phone: Phone): void {}}
+            onPhoneNumberEdit={async function (
+              pkColumns: { number: string; contact_id: number },
+              phone: Phone
+            ): Promise<void> {
+              await editPhoneNumber(client, pkColumns, phone.number);
             }}
           />
         </>

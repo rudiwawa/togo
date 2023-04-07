@@ -54,7 +54,7 @@ export interface GetContactListResponse {
 export const useListContact = () => {
   const [search, setSearch] = useState("");
 
-  const { loading, error, data, fetchMore } = useQuery<GetContactListResponse>(
+  const { loading, error, data, fetchMore,refetch } = useQuery<GetContactListResponse>(
     GET_CONTACTS,
     {
       variables: {
@@ -108,11 +108,13 @@ export const useListContact = () => {
       },
     });
   }, [loading, data, fetchMore]);
+  
 
   return {
     loading,
     error,
     data,
+    refetch,
     loadMore,
     totalContacts,
     search,

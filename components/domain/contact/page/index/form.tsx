@@ -5,20 +5,31 @@ import { formatDateTime, formatWhatsAppChatDate } from "@/helper/date";
 import { MdAdd, MdDelete } from "react-icons/md";
 
 export interface Contact {
+  last_name: string;
+  id: number;
+  first_name: string;
+  created_at?: Date;
+  phones: Phone[];
+}
+export interface ContactParams {
   last_name?: string;
   id?: number;
   first_name?: string;
-  phones?: Phone[];
   created_at?: Date;
+  phones?: Phone[];
 }
-
 export interface Phone {
   number: string;
 }
 
 interface Props {
   contact?: Contact;
-  onSubmit: (contact: Contact) => void;
+  onPhoneAdd: (contactId: number, phone: Phone) => void;
+  onPhoneNumberEdit: (
+    pkColumns: { number: string; contact_id: number },
+    phone: Phone
+  ) => void;
+  onSubmit: (contact: ContactParams) => void;
   isLoading?: boolean;
 }
 
@@ -62,19 +73,19 @@ const formStyles = css`
 `;
 export const ContactForm = ({
   contact,
+  onPhoneAdd,
+  onPhoneNumberEdit,
   onSubmit,
   isLoading = false,
 }: Props) => {
   const [firstName, setFirstName] = useState<string>();
   const [lastName, setLastName] = useState<string>();
   const [phone, setPhone] = useState("");
-  const [phones, setPhones] = useState<Phone[]>(contact?.phones || []);
 
   useEffect(() => {
     if (contact?.id) {
       setFirstName(contact.first_name);
       setLastName(contact.last_name);
-      setPhones(contact.phones || []);
     }
   }, [contact?.id]);
 
@@ -86,22 +97,23 @@ export const ContactForm = ({
       id: contact?.id,
       first_name: firstName,
       last_name: lastName,
-      phones,
     });
   };
 
   const handleAddPhone = () => {
     if (phone.trim()) {
-      setPhones([...phones, { number: phone }]);
       setPhone("");
     }
   };
 
-  const handleRemovePhone = (index: number) => {
-    const newPhones = [...phones];
-    newPhones.splice(index, 1);
-    setPhones(newPhones);
+  const handlePhoneNumberEdit = (
+    pkColumns: { number: string; contact_id: number },
+    phone: Phone
+  ) => {
+    onPhoneNumberEdit(pkColumns, phone);
   };
+
+  const handleRemovePhone = (index: number) => {};
 
   return (
     <form css={formStyles} onSubmit={handleSubmit}>
@@ -132,6 +144,7 @@ export const ContactForm = ({
           css={css`
             display: flex;
             gap: 10px;
+            margin-top: 10px;
           `}
         >
           <input
@@ -155,7 +168,7 @@ export const ContactForm = ({
             margin-top: 10px;
           `}
         >
-          {phones.map((phone, index) => (
+          {contact?.phones?.map((phone, index) => (
             <div
               key={index}
               css={css`
@@ -165,7 +178,16 @@ export const ContactForm = ({
                 margin-bottom: 1rem;
               `}
             >
-              <div>{phone.number}</div>
+              <input
+                type="text"
+                value={phone.number}
+                onChange={(e) => {
+                  handlePhoneNumberEdit(
+                    { number: phone.number, contact_id: contact.id },
+                    { number: e.target.value }
+                  );
+                }}
+              />
               <button
                 type="button"
                 onClick={() => handleRemovePhone(index)}
