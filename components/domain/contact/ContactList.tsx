@@ -44,6 +44,7 @@ const DeleteButton = styled.button`
 const ContactList = ({
   contact,
   selectedID,
+  isFavorite,
   onContactClickFavorite,
   onContactClick,
   onDelete,
@@ -51,13 +52,13 @@ const ContactList = ({
   contact: {
     id: number;
     name: string;
-    favorite: boolean;
     phones: {
       number: string;
     }[];
     created_at: string;
   }[];
   onContactClickFavorite: (id: number) => void;
+  isFavorite: boolean;
   onContactClick: (contact: number) => void;
   onDelete: (id: number) => void;
   selectedID: number;
@@ -98,7 +99,7 @@ const ContactList = ({
           <div css={{ display: "flex", alignItems: "center", width: "100%" }}>
             <button
               css={css`
-                display: block;
+                display: flex;
                 margin: 0.5rem 0.75rem;
                 position: relative;
                 align-items: center;
@@ -113,18 +114,23 @@ const ContactList = ({
               `}
               onClick={() => onContactClickFavorite(m.id)}
             >
-              {m.favorite ? (
+              {isFavorite ? (
                 <MdFavorite
                   css={css`
-                    position: absolute;
-                    right: -2px;
-                    bottom: -2px;
                     color: ${theme.colors.yellow1};
-                    width: 1rem;
-                    height: 1rem;
+                    width: 1.5rem;
+                    height: 1.5rem;
                   `}
                 />
-              ) : null}
+              ) : (
+                <MdFavoriteBorder
+                  css={css`
+                    color: ${theme.colors["gray-700"]};
+                    width: 1.5rem;
+                    height: 1.5rem;
+                  `}
+                />
+              )}
             </button>
             <div
               css={{
@@ -154,7 +160,7 @@ const ContactList = ({
                   css={{
                     fontSize: "9pt",
                     fontFamily: theme.fonts.body,
-                    fontWeight: "bold",
+                    fontWeight: "normal",
                     color: theme.colors.primary,
                     opacity: 0.9,
                   }}
@@ -169,7 +175,7 @@ const ContactList = ({
                   text-overflow: ellipsis;
                 `}
               >
-                {m.phones[0].number}
+                {m.phones[0]?.number}
               </p>
             </div>
           </div>
