@@ -19,6 +19,7 @@ import { MdAdd } from "react-icons/md";
 import { theme } from "@/styles/theme";
 import { addContactWithPhones } from "@/hook/index/addContact";
 import { addPhoneNumber } from "@/hook/index/addPhoneNumber";
+import { deletePhoneNumber } from "@/hook/index/deleteContact";
 
 export default function Home() {
   const [detailShow, setDetailShow] = useState(false);
@@ -95,8 +96,9 @@ export default function Home() {
                 setSelectedContact(contact);
                 setDetailShow(true);
               }}
-              onDelete={function (id: number): void {
-                throw new Error("Function not implemented.");
+              onDelete={async function (id: number): Promise<void> {
+                await deletePhoneNumber(client, id);
+                refetchList();
               }}
               selectedID={0}
             />
@@ -127,12 +129,12 @@ export default function Home() {
                   });
                   if (result) {
                     // setDetailShow(false);
-                    refetchList()
+                    refetchList();
                   }
                 }
               }}
               onPhoneAdd={function (contactId: number, phone: Phone): void {
-                addPhoneNumber(client, contactId, phone.number)
+                addPhoneNumber(client, contactId, phone.number);
               }}
               onPhoneNumberEdit={async function (
                 pkColumns: { number: string; contact_id: number },

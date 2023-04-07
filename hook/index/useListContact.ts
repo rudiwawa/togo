@@ -58,7 +58,7 @@ export const useListContact = () => {
     GET_CONTACTS,
     {
       variables: {
-        limit: 2,
+        limit: 10,
         offset: 0,
         order_by: { created_at: "desc" },
         where: {
