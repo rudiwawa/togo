@@ -18,6 +18,7 @@ import { editPhoneNumber } from "@/hook/index/editPhoneNumber";
 import { MdAdd } from "react-icons/md";
 import { theme } from "@/styles/theme";
 import { addContactWithPhones } from "@/hook/index/addContact";
+import { addPhoneNumber } from "@/hook/index/addPhoneNumber";
 
 export default function Home() {
   const [detailShow, setDetailShow] = useState(false);
@@ -130,7 +131,9 @@ export default function Home() {
                   }
                 }
               }}
-              onPhoneAdd={function (contactId: number, phone: Phone): void {}}
+              onPhoneAdd={function (contactId: number, phone: Phone): void {
+                addPhoneNumber(client, contactId, phone.number)
+              }}
               onPhoneNumberEdit={async function (
                 pkColumns: { number: string; contact_id: number },
                 phone: Phone

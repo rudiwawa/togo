@@ -89,6 +89,9 @@ export const ContactForm = ({
     if (contact?.id) {
       setFirstName(contact.first_name);
       setLastName(contact.last_name);
+    } else {
+      setFirstName("");
+      setLastName("");
     }
   }, [contact?.id]);
 
@@ -104,6 +107,10 @@ export const ContactForm = ({
   };
 
   const handleAddPhone = () => {
+    if (!contact?.id) {
+      return;
+    }
+    onPhoneAdd(contact.id, { number: phone });
     if (phone.trim()) {
       setPhone("");
     }
