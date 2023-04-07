@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { css, useTheme } from "@emotion/react";
 import { ThemeType } from "@/styles/theme";
 import { formatDateTime, formatWhatsAppChatDate } from "@/helper/date";
+import { MdAdd, MdDelete } from "react-icons/md";
 
 export interface Contact {
   last_name?: string;
@@ -31,6 +32,18 @@ const buttonStyles = (props: { theme: ThemeType }) => css`
   cursor: pointer;
 `;
 
+const buttonActionStyles = ({ theme }: { theme: ThemeType }) => css`
+  padding: 8px;
+  height: 100%;
+  color: ${theme.colors["gray-800"]};
+  background-color: ${theme.colors["gray-300"]};
+  border-radius: 0.375rem;
+  border: none;
+  &:active {
+    background-color: ${theme.colors["gray-500"]};
+  }
+`;
+
 const formStyles = css`
   display: flex;
   flex-direction: column;
@@ -47,7 +60,6 @@ const formStyles = css`
     margin-bottom: 10px;
   }
 `;
-
 export const ContactForm = ({
   contact,
   onSubmit,
@@ -55,13 +67,14 @@ export const ContactForm = ({
 }: Props) => {
   const [firstName, setFirstName] = useState<string>();
   const [lastName, setLastName] = useState<string>();
-  const [phones, setPhones] = useState<string>();
+  const [phone, setPhone] = useState("");
+  const [phones, setPhones] = useState<Phone[]>(contact?.phones || []);
 
   useEffect(() => {
     if (contact?.id) {
       setFirstName(contact.first_name);
       setLastName(contact.last_name);
-      setPhones(contact.phones?.map((phone) => phone.number).join(", "));
+      setPhones(contact.phones || []);
     }
   }, [contact?.id]);
 
@@ -73,8 +86,21 @@ export const ContactForm = ({
       id: contact?.id,
       first_name: firstName,
       last_name: lastName,
-      phones: phones?.split(", ").map((number) => ({ number })),
+      phones,
     });
+  };
+
+  const handleAddPhone = () => {
+    if (phone.trim()) {
+      setPhones([...phones, { number: phone }]);
+      setPhone("");
+    }
+  };
+
+  const handleRemovePhone = (index: number) => {
+    const newPhones = [...phones];
+    newPhones.splice(index, 1);
+    setPhones(newPhones);
   };
 
   return (
@@ -95,13 +121,64 @@ export const ContactForm = ({
         onChange={(e) => setLastName(e.target.value)}
       />
 
-      <label htmlFor="phones">Phones:</label>
-      <input
-        type="text"
-        id="phones"
-        value={phones}
-        onChange={(e) => setPhones(e.target.value)}
-      />
+      <div
+        css={css`
+          display: flex;
+          flex-direction: column;
+        `}
+      >
+        <label htmlFor="phone">Phone:</label>
+        <div
+          css={css`
+            display: flex;
+            gap: 10px;
+          `}
+        >
+          <input
+            type="text"
+            id="phone"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+          <button
+            type="button"
+            onClick={handleAddPhone}
+            css={css`
+              ${buttonActionStyles({ theme })}
+            `}
+          >
+            <MdAdd />
+          </button>
+        </div>
+        <div
+          css={css`
+            margin-top: 10px;
+          `}
+        >
+          {phones.map((phone, index) => (
+            <div
+              key={index}
+              css={css`
+                display: flex;
+                gap: 10px;
+                align-items: center;
+                margin-bottom: 1rem;
+              `}
+            >
+              <div>{phone.number}</div>
+              <button
+                type="button"
+                onClick={() => handleRemovePhone(index)}
+                css={css`
+                  ${buttonActionStyles({ theme })}
+                `}
+              >
+                <MdDelete />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
 
       <button
         type="submit"

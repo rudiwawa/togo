@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { gql, useQuery } from "@apollo/client";
+import "normalize.css";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 import ContactList from "@/components/domain/contact/ContactList";
 import { Layout } from "@/components/base/Layout";
@@ -10,6 +11,7 @@ import {
   Contact,
   ContactForm,
 } from "@/components/domain/contact/page/index/form";
+
 
 export default function Home() {
   const [detailShow, setDetailShow] = useState(false);
