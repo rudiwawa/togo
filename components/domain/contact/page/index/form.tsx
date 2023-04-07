@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { css, useTheme } from "@emotion/react";
 import { ThemeType } from "@/styles/theme";
 import { formatDateTime } from "@/helper/date";
-import { MdAdd, MdSave } from "react-icons/md";
+import { MdAdd, MdDelete, MdSave } from "react-icons/md";
 import { useDebounce } from "@/helper/debounce";
 
 export interface Contact {
@@ -84,6 +84,7 @@ export const ContactForm = ({
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [phone, setPhone] = useState("");
+  const [phones, setPhones] = useState(contact?.phones || []);
 
   useEffect(() => {
     if (contact?.id) {
@@ -103,15 +104,24 @@ export const ContactForm = ({
       id: contact?.id,
       first_name: firstName,
       last_name: lastName,
+      phones: phones,
     });
+
+    if (!contact?.id) {
+      setPhones([]);
+      setFirstName("");
+      setLastName("");
+    }
   };
 
   const handleAddPhone = () => {
-    if (!contact?.id) {
-      return;
-    }
-    onPhoneAdd(contact.id, { number: phone });
-    if (phone.trim()) {
+    if (contact?.id) {
+      onPhoneAdd(contact.id, { number: phone });
+      if (phone.trim()) {
+        setPhone("");
+      }
+    } else {
+      setPhones([...phones, { number: phone }]);
       setPhone("");
     }
   };
@@ -176,19 +186,40 @@ export const ContactForm = ({
             margin-top: 10px;
           `}
         >
-          {contact?.phones?.map((phone, index) => (
-            <EditPhoneNumber
-              onPhoneNumberEdit={function (
-                pkColumns: { number: string; contact_id: number },
-                phone: Phone
-              ): void {
-                handlePhoneNumberEdit(pkColumns, phone);
-              }}
-              initialPhone={phone}
-              index={0}
-              id={contact.id}
-            />
-          ))}
+          {contact?.id
+            ? contact?.phones?.map((phone, index) => (
+                <EditPhoneNumber
+                  onPhoneNumberEdit={function (
+                    pkColumns: { number: string; contact_id: number },
+                    phone: Phone
+                  ): void {
+                    handlePhoneNumberEdit(pkColumns, phone);
+                  }}
+                  initialPhone={phone}
+                  index={0}
+                  id={contact.id}
+                />
+              ))
+            : phones.map((phone, index) => (
+                <EditPhoneNumber
+                  onPhoneNumberEdit={function (
+                    pkColumns: { number: string; contact_id: number },
+                    phone: Phone
+                  ): void {
+                    setPhones(
+                      phones.map((p, i) =>
+                        i === index ? { ...p, ...phone } : p
+                      )
+                    );
+                  }}
+                  initialPhone={phone}
+                  onDelete={() => {
+                    setPhones(phones.filter((_, i) => i !== index));
+                  }}
+                  index={index}
+                  id={undefined}
+                />
+              ))}
         </div>
       </div>
 
@@ -225,6 +256,7 @@ const EditPhoneNumber = ({
   id,
   onPhoneNumberEdit,
   initialPhone,
+  onDelete,
   index,
 }: {
   onPhoneNumberEdit: (
@@ -232,22 +264,24 @@ const EditPhoneNumber = ({
     phone: Phone
   ) => void;
   initialPhone: Phone;
-  id: number;
+  id?: number;
   index: number;
+  onDelete?: (index: number) => void;
 }) => {
   const theme = useTheme() as ThemeType;
   const [phone, setPhone] = useState<string>(initialPhone.number);
 
   const handlePhoneNumberEdit = () => {
-    onPhoneNumberEdit(
-      {
-        number: initialPhone.number,
-        contact_id: id,
-      },
-      {
-        number: phone,
-      }
-    );
+    if (id)
+      onPhoneNumberEdit(
+        {
+          number: initialPhone.number,
+          contact_id: id,
+        },
+        {
+          number: phone,
+        }
+      );
   };
 
   useEffect(() => {
@@ -282,6 +316,19 @@ const EditPhoneNumber = ({
           `}
         >
           <MdSave />
+        </button>
+      )}
+      {!id && (
+        <button
+          type="button"
+          onClick={() => onDelete && onDelete(index)}
+          css={css`
+            ${buttonActionStyles({ theme })}
+            color: white;
+            background-color: ${theme.colors.primary};
+          `}
+        >
+          <MdDelete />
         </button>
       )}
     </div>
