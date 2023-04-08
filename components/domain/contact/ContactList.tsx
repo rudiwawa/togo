@@ -12,6 +12,10 @@ const ListItem = styled(motion.div)(
   ({ isSelected, theme }: { isSelected: boolean; theme: ThemeType }) => `
   display: flex;
   position: relative;
+  -webkit-user-select: none;  
+  -moz-user-select: none;    
+  -ms-user-select: none;      
+  user-select: none;
   align-items: center;
   justify-content: space-between;
   padding-right: 1rem;
