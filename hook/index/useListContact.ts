@@ -1,3 +1,4 @@
+import { useDebounce } from "@/helper/debounce";
 import { gql, useQuery } from "@apollo/client";
 import { useCallback, useState } from "react";
 
@@ -54,6 +55,8 @@ export interface GetContactListResponse {
 export const useListContact = () => {
   const [search, setSearch] = useState("");
 
+  const debounceSearch = useDebounce(search, 500)
+
   const { loading, error, data, fetchMore,refetch } = useQuery<GetContactListResponse>(
     GET_CONTACTS,
     {
@@ -65,7 +68,7 @@ export const useListContact = () => {
           _or: [
             {
               first_name: {
-                _ilike: `%${search}%`,
+                _ilike: `%${debounceSearch}%`,
               },
 
               // last_name: {
