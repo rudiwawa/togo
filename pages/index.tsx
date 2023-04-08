@@ -20,6 +20,7 @@ import { theme } from "@/styles/theme";
 import { addContactWithPhones } from "@/hook/index/addContact";
 import { addPhoneNumber } from "@/hook/index/addPhoneNumber";
 import { deletePhoneNumber } from "@/hook/index/deleteContact";
+import Head from "next/head";
 
 export default function Home() {
   const [detailShow, setDetailShow] = useState(false);
@@ -58,6 +59,9 @@ export default function Home() {
 
   return (
     <>
+      <Head>
+        <title>Contacts</title>
+      </Head>
       <Layout
         left={
           <>
