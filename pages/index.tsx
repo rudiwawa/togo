@@ -80,8 +80,9 @@ export default function Home() {
                 setSelectedContact(contact);
                 setDetailShow(true);
               }}
-              onDelete={function (id: number): void {
-                throw new Error("Function not implemented.");
+              onDelete={async function (id: number): Promise<void> {
+                await deletePhoneNumber(client, id);
+                refetchList();
               }}
               selectedID={0}
             />
