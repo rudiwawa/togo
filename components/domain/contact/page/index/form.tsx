@@ -140,6 +140,7 @@ export const ContactForm = ({
       <input
         type="text"
         id="firstName"
+        pattern="[a-zA-Z0-9]*"
         value={firstName}
         onChange={(e) => setFirstName(e.target.value)}
       />
@@ -148,6 +149,7 @@ export const ContactForm = ({
       <input
         type="text"
         id="lastName"
+        pattern="[a-zA-Z0-9]*"
         value={lastName}
         onChange={(e) => setLastName(e.target.value)}
       />
@@ -169,6 +171,7 @@ export const ContactForm = ({
           <input
             type="text"
             id="phone"
+            pattern="[a-zA-Z0-9]*"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />
@@ -302,6 +305,7 @@ const EditPhoneNumber = ({
       <input
         type="text"
         value={phone}
+        pattern="[a-zA-Z0-9]*"
         onChange={(e) => {
           setPhone(e.target.value);
         }}
